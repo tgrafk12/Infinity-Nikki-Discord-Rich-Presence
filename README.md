@@ -14,7 +14,7 @@ I've written a simple Rich Presence detection for the Game shown below!
 *Screenshot taken during Release v1.0; Image subject to change on other Releases*
 
 
-**Feel free to fork and compile on your own, or, head to the [Releases Page](https://github.com/tgrafk12/InfinityNikkiRichPresence/releases/tag/1.0) to download the pre-compiled EXE for yourself!**
+**Feel free to fork and compile on your own, or, head to the [Releases Page](https://github.com/tgrafk12/InfinityNikkiRichPresence/releases/) to download the pre-compiled EXE for yourself!**
 
 Enjoy!
 
