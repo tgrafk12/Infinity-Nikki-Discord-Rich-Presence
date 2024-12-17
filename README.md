@@ -26,6 +26,8 @@ Enjoy!
 
 - Service Manager Implementation (Automatically Start Service/Rich Presence when game is running via Windows Service Manager)
 
+- Language Localisation (As its Currently in English I want to plan for: (JP, CN, FR, RU) and maybe a few more)
+
 - Massive Revamp of Data Shown on Rich Presence[^2]
    - Point of Interest Data (Shows In-Game Location)
    - Mission Currently Tracked
