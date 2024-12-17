@@ -39,7 +39,7 @@ Enjoy!
     - Toggle for Service to be used or EXE itself
 
 
-[^1]: I have no relation with [Infold Games](https://infoldgames.com/en/home), nor do not own the Icon/Images displayed in the Rich Presence. Images are Directly from their Game/Website. All Images are Property of [Infold Games](https://infoldgames.com/en/home) and are strictly used for the Implementation of DiscordRPC.
+[^1]: I have no relation with [Infold Games](https://infoldgames.com/en/home) or [Discord](https://discord.com/), nor do not own the Icon/Images displayed in the Rich Presence. Images displayed are Directly from their Game/Website. Images of "Infinity Nikki" are Property of [Infold Games](https://infoldgames.com/en/home). Images of "Discord" are Property of [Discord](https://discord.com/). All image assets used are strictly used for the Implimentation of a Discord Rich Presence for Infinity Nikki and not intened for redistribution.
 
 [^2]: This most likely will need to be a Modification to the game directly (Which If I'm not wrong, is against Infold's TOS). Unless I can figure out how to Stream Player data to the executable without modifying the game or injecting any .DLL files this is a _BIG_ _**maybe implementation**_. If you know how to make this work without breaking TOS, feel free to DM me!
 
