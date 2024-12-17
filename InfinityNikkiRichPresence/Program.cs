@@ -1,108 +1,55 @@
-﻿using DiscordRPC;
-using Newtonsoft.Json;
 using System;
-using System.Diagnostics;
-using System.IO;
 using System.Threading;
 
 class Program
 {
-    static DiscordRpcClient client;
-    static Stopwatch stopwatch;
-    static string gameProcessName = "X6Game-Win64-Shipping";
-    static bool isGameRunning = false;
-    static TotalPlaytime totalPlaytime;
-    static string playtimeFilePath = "playtime.json";
+    public static Config config;
 
     static void Main()
     {
-        totalPlaytime = LoadTotalPlaytime();
+        // Prevention of Multiple RichPresence.exe's
+        var mutex = new Mutex(true, "RichPresenceMutex", out bool isNewInstance);
+        if (!isNewInstance)
+        {
+            Console.WriteLine("Another instance of the RichPresence application is already running.");
+            return;
+        }
 
-        Thread gameDetectionThread = new Thread(GameDetectionLoop);
-        gameDetectionThread.IsBackground = true;
-        gameDetectionThread.Start();
+        // Try to load or create the config file
+        config = ConfigManager.LoadOrCreateConfig();
 
-        Console.WriteLine("Monitoring game... Press any key to exit.");
+        if (config == null)
+        {
+            Console.WriteLine("Error: Config could not be loaded or created. Exiting program.");
+            return;
+        }
+
+        // If legacy playtime.json exists, merge it into config.json
+        LegacyVersionMerge();
+
+        // Initialize Rich Presence manager
+        RichPresenceManager.Initialize(config);
+
+        Logger.Log(1, "Monitoring Infinity Nikki game... Press any key while inside this tab to exit gracefully.");
         Console.ReadKey();
 
-        client?.Dispose();
+        ConfigManager.BackupConfig(config);
     }
 
-    static void GameDetectionLoop()
+    static void LegacyVersionMerge()
     {
-        while (true)
+        // Check if playtime.json exists and merge it into config.json
+        if (System.IO.File.Exists("playtime.json"))
         {
-            Process[] processes = Process.GetProcessesByName(gameProcessName);
+            string legacyJson = System.IO.File.ReadAllText("playtime.json");
+            dynamic legacyData = Newtonsoft.Json.JsonConvert.DeserializeObject(legacyJson);
+            config.PlaytimeElapsed = legacyData.ElapsedTime;  // Merge playtime data
 
-            if (processes.Length > 0 && !isGameRunning)
-            {
-                Console.WriteLine("Game started! Running Call to make RichPresence!");
-                isGameRunning = true;
-                stopwatch = new Stopwatch();
-                stopwatch.Start();
+            System.IO.File.Delete("playtime.json");
 
-                client = new DiscordRpcClient("1318345278088024128");
-                client.Initialize();
-            }
-            else if (processes.Length == 0 && isGameRunning)
-            {
-                Console.WriteLine("Game stopped! Running Call to Stop RichPresence!");
-                isGameRunning = false;
-                stopwatch.Stop();
-                totalPlaytime.ElapsedTime += stopwatch.Elapsed;
-                SaveTotalPlaytime();
-                stopwatch.Reset();
+            ConfigManager.SaveConfig(config);  // Save after merging legacy playtime
 
-                client.ClearPresence();
-            }
-
-
-            if (isGameRunning)
-            {
-                UpdateRichPresence();
-            }
-
-
-            Thread.Sleep(5000);
+            Logger.Log(1, "Legacy playtime value found! Merged into the new config file.");
         }
     }
-
-    static void UpdateRichPresence()
-    {
-
-        TimeSpan totalPlaytimeElapsed = totalPlaytime.ElapsedTime + stopwatch.Elapsed;
-
-
-        client.SetPresence(new RichPresence()
-        {
-            Details = "Playing Infinity Nikki",
-            State = $"Total Playtime: {totalPlaytimeElapsed.Hours}h {totalPlaytimeElapsed.Minutes}m",
-            Timestamps = new Timestamps() { Start = DateTime.UtcNow - stopwatch.Elapsed },
-        });
-    }
-
-
-    static TotalPlaytime LoadTotalPlaytime()
-    {
-        if (File.Exists(playtimeFilePath))
-        {
-            string json = File.ReadAllText(playtimeFilePath);
-            return JsonConvert.DeserializeObject<TotalPlaytime>(json);
-        }
-        else
-        {
-            return new TotalPlaytime { ElapsedTime = TimeSpan.Zero };
-        }
-    }
-
-    static void SaveTotalPlaytime()
-    {
-        string json = JsonConvert.SerializeObject(totalPlaytime, Formatting.Indented);
-        File.WriteAllText(playtimeFilePath, json);
-    }
-}
-
-public class TotalPlaytime
-{
-    public TimeSpan ElapsedTime { get; set; }
 }
